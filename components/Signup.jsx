@@ -120,6 +120,9 @@ const Signup = () => {
       setErrors({});
       navigate("/");
     } else {
+      setErrors({
+        email: result.message || "Signup failed. Please try again.",
+      });
       console.error("Signup failed:", result);
     }
   };

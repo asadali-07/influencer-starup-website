@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ShoppingCart } from "lucide-react";
@@ -6,11 +6,11 @@ import { Heart } from "lucide-react";
 import { useCartStore } from "../src/store/cartStore";
 import { useWishlistStore } from "../src/store/wishlistStore";
 import { Link } from "react-router-dom";
-import Cookies from "js-cookie";
+import { useAuthStore } from "../src/store/authStore";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const accessToken = Cookies.get("accessToken");
+  const { accessToken, logout: authLogout, initAuth } = useAuthStore();
   const navigate = useNavigate();
   const { items } = useCartStore();
   const { wishlist } = useWishlistStore();
@@ -20,7 +20,7 @@ const Navbar = () => {
   const logoRef = useRef(null);
   const menuItemsRef = useRef([]);
 
-  const handleLogout = async () => {
+   const handleLogout = async () => {
     const data = await fetch("https://two407-backend.onrender.com/api/auth/logout", {
       method: "POST",
       credentials: "include",
@@ -30,12 +30,17 @@ const Navbar = () => {
     });
     const result = await data.json();
     if (data.ok) {
-      console.log("Signup successful:", result);
+      console.log("Logout successful:", result);
+      authLogout();
       navigate("/");
     } else {
-      console.error("Signup failed:", result);
+      console.error("Logout failed:", result);
     }
   };
+
+ useEffect(() => {
+    initAuth();
+  }, [initAuth]);
 
   useEffect(() => {
     const handleScroll = () => {

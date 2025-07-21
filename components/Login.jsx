@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { refreshAuth } = useAuthStore();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -77,27 +79,47 @@ const Login = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    const data = await fetch("https://two407-backend.onrender.com/api/auth/login", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-    setIsLoading(false);
-    const result = await data.json();
-    if (data.ok) {
-      console.log("Login successful:", result);
-      setFormData({ email: "", password: "" });
-      setErrors({});
-      navigate("/");
-    } else {
-      console.error("Login failed:", result);
-    }
-    setIsLoading(false);
+    try {
+      const data = await fetch(
+        "https://two407-backend.onrender.com/api/auth/login",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
-    console.log("Login:", formData);
+      const result = await data.json();
+
+      if (data.ok) {
+        console.log("Login successful:", result);
+
+        // Since your backend sets cookies, refresh the auth state
+        // This will read the newly set cookie and update the store
+        setTimeout(() => {
+          refreshAuth();
+        }, 100); // Small delay to ensure cookie is set
+
+        setFormData({ email: "", password: "" });
+        setErrors({});
+        navigate("/");
+      } else {
+        setErrors({
+          email: result.message || "Login failed. Please try again.",
+        });
+        console.error("Login failed:", result);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrors({
+        error: "Network error. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

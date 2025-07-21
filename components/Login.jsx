@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../src/store/authStore"
 
 const Login = () => {
   const navigate = useNavigate();

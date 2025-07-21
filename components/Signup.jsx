@@ -7,7 +7,7 @@ import { useAuthStore } from "../src/store/authStore";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { refreshAuth } = useAuthStore();
+  const { setAccessToken } = useAuthStore();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -100,7 +100,6 @@ const Signup = () => {
     try {
       const data = await fetch("https://two407-backend.onrender.com/api/auth/signup", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -114,13 +113,7 @@ const Signup = () => {
       const result = await data.json();
 
       if (data.ok) {
-        console.log("Signup successful:", result);
-        
-        // Refresh auth state after successful signup
-        setTimeout(() => {
-          refreshAuth();
-        }, 300);
-
+        setAccessToken(result.accessToken);
         setFormData({
           firstName: "",
           lastName: "",

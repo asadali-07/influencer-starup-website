@@ -3,11 +3,11 @@ import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../src/store/authStore"
+import { useAuthStore } from "../src/store/authStore";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { refreshAuth } = useAuthStore();
+  const { setAccessToken } = useAuthStore();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -84,7 +84,6 @@ const Login = () => {
         "https://two407-backend.onrender.com/api/auth/login",
         {
           method: "POST",
-          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
@@ -95,14 +94,7 @@ const Login = () => {
       const result = await data.json();
 
       if (data.ok) {
-        console.log("Login successful:", result);
-
-        // Since your backend sets cookies, refresh the auth state
-        // This will read the newly set cookie and update the store
-        setTimeout(() => {
-          refreshAuth();
-        }, 300); // Small delay to ensure cookie is set
-
+        setAccessToken(result.accessToken);
         setFormData({ email: "", password: "" });
         setErrors({});
         navigate("/");

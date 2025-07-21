@@ -10,7 +10,7 @@ import { useAuthStore } from "../src/store/authStore";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const { accessToken, isAuthenticated, logout: authLogout, initAuth, checkAuth } = useAuthStore();
+  const { accessToken, clearAccessToken } = useAuthStore();
   const navigate = useNavigate();
   const { items } = useCartStore();
   const { wishlist } = useWishlistStore();
@@ -20,60 +20,10 @@ const Navbar = () => {
   const logoRef = useRef(null);
   const menuItemsRef = useRef([]);
 
-  const handleLogout = async () => {
-    try {
-      const data = await fetch("https://two407-backend.onrender.com/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const result = await data.json();
-      if (data.ok) {
-        console.log("Logout successful:", result);
-        authLogout();
-        navigate("/");
-      } else {
-        console.error("Logout failed:", result);
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-      authLogout(); // Still logout on client side
-      navigate("/");
-    }
-  };
-
-  // Initialize auth and set up periodic checking
-  useEffect(() => {
-    initAuth();
-    
-    // Check auth status periodically
-    const interval = setInterval(() => {
-      checkAuth();
-    }, 5000);
-
-    // Check auth when window gains focus
-    const handleFocus = () => {
-      checkAuth();
-    };
-    
-    window.addEventListener('focus', handleFocus);
-    
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [initAuth, checkAuth]);
-
-  // Debug auth state changes
-  useEffect(() => {
-    console.log("Navbar - Auth state changed:", { 
-      accessToken: !!accessToken, 
-      isAuthenticated,
-      actualToken: accessToken 
-    });
-  }, [accessToken, isAuthenticated]);
+const handleLogout = () => {
+    clearAccessToken();
+    navigate("/login");
+};
 
   useEffect(() => {
     const handleScroll = () => {
@@ -120,8 +70,8 @@ const Navbar = () => {
 
   const navItems = ["Home", "About", "Products", "Login"];
 
-  // Use isAuthenticated instead of just accessToken for more reliable auth checking
-  const isLoggedIn = isAuthenticated && accessToken;
+  // Directly check the accessToken value
+  const isLoggedIn = !!accessToken.value;
 
   return (
     <motion.nav

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import { ShoppingCart } from "lucide-react";
@@ -8,24 +8,27 @@ import { useWishlistStore } from "../src/store/wishlistStore";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../src/store/authStore";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Navbar = () => {
   const { accessToken, clearAccessToken } = useAuthStore();
   const navigate = useNavigate();
-  const { items,clearCart } = useCartStore();
-  const { wishlist ,clearWishlist } = useWishlistStore();
+  const { items, clearCart } = useCartStore();
+  const { wishlist, clearWishlist } = useWishlistStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const navRef = useRef(null);
   const logoRef = useRef(null);
   const menuItemsRef = useRef([]);
 
-const handleLogout = () => {
+  const handleLogout = () => {
     clearAccessToken();
     clearCart();
     clearWishlist();
+    toast.success("Logged out successfully!");
     navigate("/login");
-};
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -241,25 +244,28 @@ const handleLogout = () => {
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="px-6 py-8 space-y-8">
-              {navItems.map((item, index) => 
-                !(isLoggedIn && item === "Login") && (
-                  <motion.div
-                    key={item}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.3 }}
-                  >
-                    <Link
-                      to={`/${
-                        item.toLowerCase() === "home" ? "" : item.toLowerCase()
-                      }`}
-                      className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
-                      onClick={() => setIsMenuOpen(false)}
+              {navItems.map(
+                (item, index) =>
+                  !(isLoggedIn && item === "Login") && (
+                    <motion.div
+                      key={item}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1, duration: 0.3 }}
                     >
-                      {item}
-                    </Link>
-                  </motion.div>
-                )
+                      <Link
+                        to={`/${
+                          item.toLowerCase() === "home"
+                            ? ""
+                            : item.toLowerCase()
+                        }`}
+                        className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {item}
+                      </Link>
+                    </motion.div>
+                  )
               )}
 
               {/* Mobile Logout */}
@@ -327,6 +333,43 @@ const handleLogout = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Toast Notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        toastStyle={{
+          backgroundColor: "rgba(0, 0, 0, 0.9)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "12px",
+          color: "white",
+          fontFamily: "inherit",
+          fontSize: "14px",
+          fontWeight: "300",
+          letterSpacing: "0.5px",
+          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
+        }}
+        progressStyle={{
+          background:
+            "linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)",
+          height: "2px",
+        }}
+        closeButtonStyle={{
+          color: "rgba(255, 255, 255, 0.7)",
+          fontSize: "16px",
+        }}
+        style={{
+          zIndex: 9999,
+        }}
+      />
     </motion.nav>
   );
 };

@@ -480,11 +480,15 @@ const Cart = () => {
                   onClick={handleCheckout}
                   disabled={isLoading}
                   className="w-full py-3 sm:py-4 bg-white text-black font-medium tracking-[0.2em] hover:bg-gray-100 transition-all duration-300 disabled:opacity-50 text-xs sm:text-sm"
-                  whileHover={{
-                    scale: isLoading ? 1.05 : 1.02,
-                    boxShadow: "0 10px 25px rgba(255,255,255,0.1)",
-                    borderRadius: "50px",
-                  }}
+                  whileHover={
+                    isLoading
+                      ? {}
+                      : {
+                          scale: 1.02,
+                          boxShadow: "0 10px 25px rgba(255,255,255,0.1)",
+                          borderRadius: "50px",
+                        }
+                  }
                   whileTap={{ scale: 0.98 }}
                 >
                   {isLoading ? (
@@ -494,7 +498,7 @@ const Cart = () => {
                       animate={{ opacity: 1 }}
                     >
                       <motion.div
-                        className="w-4 h-4 border-2 border-black border-t-transparent mr-2"
+                        className="w-4 h-4 border-2 border-black border-t-transparent rounded-full mr-2"
                         animate={{ rotate: 360 }}
                         transition={{
                           duration: 1,
@@ -523,42 +527,42 @@ const Cart = () => {
         )}
       </div>
       {/* Toast Notifications */}
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-          toastStyle={{
-            backgroundColor: "rgba(0, 0, 0, 0.9)",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            borderRadius: "12px",
-            color: "white",
-            fontFamily: "inherit",
-            fontSize: "14px",
-            fontWeight: "300",
-            letterSpacing: "0.5px",
-            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
-          }}
-          progressStyle={{
-            background:
-              "linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)",
-            height: "2px",
-          }}
-          closeButtonStyle={{
-            color: "rgba(255, 255, 255, 0.7)",
-            fontSize: "16px",
-          }}
-          style={{
-            zIndex: 9999,
-          }}
-        />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        toastStyle={{
+          backgroundColor: "rgba(0, 0, 0, 0.9)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
+          borderRadius: "12px",
+          color: "white",
+          fontFamily: "inherit",
+          fontSize: "14px",
+          fontWeight: "300",
+          letterSpacing: "0.5px",
+          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
+        }}
+        progressStyle={{
+          background:
+            "linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)",
+          height: "2px",
+        }}
+        closeButtonStyle={{
+          color: "rgba(255, 255, 255, 0.7)",
+          fontSize: "16px",
+        }}
+        style={{
+          zIndex: 9999,
+        }}
+      />
     </div>
   );
 };

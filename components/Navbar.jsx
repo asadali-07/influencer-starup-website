@@ -21,7 +21,7 @@ const Navbar = () => {
   const menuItemsRef = useRef([]);
 
   const handleLogout = async () => {
-    const data = await fetch("http://localhost:8080/api/auth/logout", {
+    const data = await fetch("https://two407-backend.onrender.com/api/auth/logout", {
       method: "POST",
       credentials: "include",
       headers: {

@@ -5,15 +5,15 @@ import { ShoppingCart } from "lucide-react";
 import { Heart } from "lucide-react";
 import { useCartStore } from "../src/store/cartStore";
 import { useWishlistStore } from "../src/store/wishlistStore";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../src/store/authStore";
 import { useNavigate } from "react-router-dom";
-import {  toast } from "react-toastify";
-
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const { accessToken, clearAccessToken } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const { items, clearCart } = useCartStore();
   const { wishlist, clearWishlist } = useWishlistStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -96,6 +96,14 @@ const Navbar = () => {
   // Directly check the accessToken value
   const isLoggedIn = !!accessToken.value;
 
+  // Helper function to check if a link is active
+  const isActiveLink = (item) => {
+    if (item === "Home") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(`/${item.toLowerCase()}`);
+  };
+
   return (
     <motion.nav
       ref={navRef}
@@ -139,12 +147,20 @@ const Navbar = () => {
                       to={`/${
                         item.toLowerCase() === "home" ? "" : item.toLowerCase()
                       }`}
-                      className="text-gray-300 hover:text-white font-light text-sm tracking-widest uppercase transition-colors duration-300 relative group"
+                      className={`font-light text-sm tracking-widest uppercase transition-colors duration-300 relative group ${
+                        isActiveLink(item)
+                          ? "text-white"
+                          : "text-gray-300 hover:text-white"
+                      }`}
                     >
                       {item}
+                      {/* Animated underline - shows on active OR hover */}
                       <motion.div
                         className="absolute -bottom-1 left-0 h-px bg-gradient-to-r from-white via-gray-300 to-white"
-                        initial={{ width: 0 }}
+                        initial={false}
+                        animate={{
+                          width: isActiveLink(item) ? "100%" : "0%",
+                        }}
                         whileHover={{ width: "100%" }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                       />
@@ -166,7 +182,7 @@ const Navbar = () => {
                   Logout
                   <motion.div
                     className="absolute -bottom-1 left-0 h-px bg-gradient-to-r from-white via-gray-300 to-white"
-                    initial={{ width: 0 }}
+                    initial={{ width: "0%" }}
                     whileHover={{ width: "100%" }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                   />
@@ -181,10 +197,14 @@ const Navbar = () => {
             >
               <Link
                 to="/wishlist"
-                className="text-gray-300 hover:text-white font-light text-sm tracking-widest uppercase transition-colors duration-300 relative group"
+                className={`font-light text-sm tracking-widest uppercase transition-colors duration-300 relative group ${
+                  location.pathname === "/wishlist"
+                    ? "text-white"
+                    : "text-gray-300 hover:text-white"
+                }`}
               >
                 {wishlist.length > 0 && (
-                  <span className="absolute -top-1 -right-4 bg-gray-900  text-white text-xs rounded-full px-1">
+                  <span className="absolute -top-1 -right-4 bg-gray-900 text-white text-xs rounded-full px-1">
                     {wishlist.length}
                   </span>
                 )}
@@ -192,7 +212,10 @@ const Navbar = () => {
                 Wishlist
                 <motion.div
                   className="absolute -bottom-1 left-0 h-px bg-gradient-to-r from-white via-gray-300 to-white"
-                  initial={{ width: 0 }}
+                  initial={false}
+                  animate={{
+                    width: location.pathname === "/wishlist" ? "100%" : "0%",
+                  }}
                   whileHover={{ width: "100%" }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                 />
@@ -254,11 +277,11 @@ const Navbar = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
-              className="lg:hidden absolute top-full left-0 right-0 bg-black backdrop-blur-xl border-b border-gray-900/50"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="lg:hidden absolute top-full left-0 right-0 z-50 bg-black/95 backdrop-blur-xl border-b border-gray-900/50"
+              initial={{ opacity: 0, y: -20, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: "auto" }}
+              exit={{ opacity: 0, y: -20, height: 0 }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
             >
               <div className="px-6 py-8 space-y-8">
                 {navItems.map(
@@ -276,10 +299,24 @@ const Navbar = () => {
                               ? ""
                               : item.toLowerCase()
                           }`}
-                          className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
+                          className={`block font-light text-lg tracking-widest uppercase transition-colors duration-300 relative group ${
+                            isActiveLink(item)
+                              ? "text-white"
+                              : "text-gray-300 hover:text-white"
+                          }`}
                           onClick={() => setIsMenuOpen(false)}
                         >
                           {item}
+                          {/* Animated underline - shows on active OR hover */}
+                          <motion.div
+                            className="absolute -bottom-1 left-0 h-px bg-gradient-to-r from-white via-gray-300 to-white"
+                            initial={false}
+                            animate={{
+                              width: isActiveLink(item) ? "100%" : "0%",
+                            }}
+                            whileHover={{ width: "100%" }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                          />
                         </Link>
                       </motion.div>
                     )
@@ -297,9 +334,15 @@ const Navbar = () => {
                         handleLogout();
                         setIsMenuOpen(false);
                       }}
-                      className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
+                      className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300 relative group"
                     >
                       Logout
+                      <motion.div
+                        className="absolute -bottom-1 left-0 h-px bg-gradient-to-r from-white via-gray-300 to-white"
+                        initial={{ width: "0%" }}
+                        whileHover={{ width: "100%" }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                      />
                     </button>
                   </motion.div>
                 )}
@@ -312,11 +355,25 @@ const Navbar = () => {
                 >
                   <Link
                     to="/wishlist"
-                    className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
+                    className={`block font-light text-lg tracking-widest uppercase transition-colors duration-300 relative group ${
+                      location.pathname === "/wishlist"
+                        ? "text-white"
+                        : "text-gray-300 hover:text-white"
+                    }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Heart className="inline-block mr-2" size={18} />
                     Wishlist
+                    {/* Animated underline - shows on active OR hover */}
+                    <motion.div
+                      className="absolute -bottom-1 left-0 h-px bg-gradient-to-r from-white via-gray-300 to-white"
+                      initial={false}
+                      animate={{
+                        width: location.pathname === "/wishlist" ? "100%" : "0%",
+                      }}
+                      whileHover={{ width: "100%" }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                    />
                   </Link>
                 </motion.div>
 

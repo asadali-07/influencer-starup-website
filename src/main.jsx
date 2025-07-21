@@ -15,6 +15,7 @@ const Wishlist = lazy(() => import("../components/Wishlist.jsx"));
 const TermofService = lazy(() => import("../components/TermofService.jsx"));
 const PrivacyPolicy = lazy(() => import("../components/PrivacyPolicy.jsx"));
 const HelpCenter = lazy(() => import("../components/HelpCenter.jsx"));
+const NotFound = lazy(() => import("../components/NotFound.jsx"));
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: "/termsofservice", element: <TermofService /> },
       { path: "/privacypolicy", element: <PrivacyPolicy /> },
       { path: "/helpcenter", element: <HelpCenter /> },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

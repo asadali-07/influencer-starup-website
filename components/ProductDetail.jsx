@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
+import { ArrowLeft } from "lucide-react";
 import { useCartStore } from "../src/store/cartStore";
 import { useWishlistStore } from "../src/store/wishlistStore";
 import perfumeProducts from "../data/perfumeData";
 import { toast } from "react-toastify";
-
+import NotFound from "./NotFound";
+import LoadingFallback from "./LoadingFallback";
 
 const ProductDetail = () => {
   const { addItem } = useCartStore();
   const { addToWishlist } = useWishlistStore();
   const { id } = useParams();
+  const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,23 +61,17 @@ const ProductDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <motion.div
-          className="text-white text-xl"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          Loading...
-        </motion.div>
-      </div>
+      <LoadingFallback />
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white text-xl">Product not found</div>
-      </div>
+      <NotFound
+        customTitle="Product Not Found"
+        customSubtitle={`The fragrance with ID "${id}" seems to have vanished from our collection. Perhaps it was limited edition, or you might have the wrong scent in mind.`}
+        customBadge="Product Missing"
+      />
     );
   }
 
@@ -101,27 +98,45 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-black pt-24 pb-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        {/* Back Button */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.button
+            onClick={() => navigate('/products')}
+            className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors duration-300 group"
+            whileHover={{ x: -5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
+            <span className="font-light tracking-wide">Back to Products</span>
+          </motion.button>
+        </motion.div>
+
         {/* Breadcrumb */}
         <motion.nav
           className="mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
         >
           <ol className="flex items-center space-x-2 text-gray-400 text-sm">
             <li>
-              <a href="/" className="hover:text-white transition-colors">
+              <Link to="/" className="hover:text-white transition-colors">
                 Home
-              </a>
+              </Link>
             </li>
             <li>/</li>
             <li>
-              <a
-                href="/products"
-                className="hover:text-white transition-colors"
+              <Link
+                to="/products"
+                className="hover:text-white transition-colors cursor-pointer"
               >
                 Products
-              </a>
+              </Link>
             </li>
             <li>/</li>
             <li className="text-white">{product.name}</li>
@@ -342,6 +357,7 @@ const ProductDetail = () => {
 
         {/* Enhanced Product Information Tabs */}
         <div ref={specificationRef} className="mt-20">
+          {/* ...existing code... */}
           {/* Tab Navigation */}
           <div className="flex flex-wrap gap-4 mb-8 border-b border-gray-800">
             {tabs.map((tab) => (

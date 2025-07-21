@@ -5,6 +5,8 @@ import { useCartStore } from "../src/store/cartStore";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../src/store/authStore";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Cart = () => {
   const { accessToken } = useAuthStore();
@@ -38,6 +40,7 @@ const Cart = () => {
     if (promoCode.toLowerCase() === "luxe10") {
       setDiscount(0.1);
       setPromoCode("");
+      toast.success("Promo code applied! 10% off");
     }
   };
 
@@ -56,8 +59,8 @@ const Cart = () => {
     }
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 2000));
+    toast.success("Proceeding to checkout...");
     setIsLoading(false);
-    console.log("Proceeding to checkout...");
   };
 
   return (
@@ -200,7 +203,10 @@ const Cart = () => {
 
                           {/* Remove Button */}
                           <motion.button
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => {
+                              removeItem(item.id);
+                              toast.success("Item removed from cart");
+                            }}
                             className="text-gray-400 hover:text-red-400 transition-colors p-2"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
@@ -360,7 +366,10 @@ const Cart = () => {
 
                         {/* Remove Button */}
                         <motion.button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => {
+                            removeItem(item.id);
+                            toast.success("Item removed from cart");
+                          }}
                           className="text-gray-400 hover:text-red-400 transition-colors p-2"
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
@@ -513,6 +522,43 @@ const Cart = () => {
           </div>
         )}
       </div>
+      {/* Toast Notifications */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          toastStyle={{
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "12px",
+            color: "white",
+            fontFamily: "inherit",
+            fontSize: "14px",
+            fontWeight: "300",
+            letterSpacing: "0.5px",
+            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
+          }}
+          progressStyle={{
+            background:
+              "linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)",
+            height: "2px",
+          }}
+          closeButtonStyle={{
+            color: "rgba(255, 255, 255, 0.7)",
+            fontSize: "16px",
+          }}
+          style={{
+            zIndex: 9999,
+          }}
+        />
     </div>
   );
 };

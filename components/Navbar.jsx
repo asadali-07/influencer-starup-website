@@ -12,8 +12,8 @@ import { useNavigate } from "react-router-dom";
 const Navbar = () => {
   const { accessToken, clearAccessToken } = useAuthStore();
   const navigate = useNavigate();
-  const { items } = useCartStore();
-  const { wishlist } = useWishlistStore();
+  const { items,clearCart } = useCartStore();
+  const { wishlist ,clearWishlist } = useWishlistStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const navRef = useRef(null);
@@ -22,6 +22,8 @@ const Navbar = () => {
 
 const handleLogout = () => {
     clearAccessToken();
+    clearCart();
+    clearWishlist();
     navigate("/login");
 };
 

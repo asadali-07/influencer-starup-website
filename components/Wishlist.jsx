@@ -4,6 +4,8 @@ import { gsap } from "gsap";
 import { useWishlistStore } from "../src/store/wishlistStore";
 import { useCartStore } from "../src/store/cartStore";
 import { Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Wishlist = () => {
   const { wishlist, removeFromWishlist } = useWishlistStore();
@@ -47,6 +49,11 @@ const Wishlist = () => {
       addItem(item);
       removeFromWishlist(item.id);
     }
+    toast.success(
+      `Added ${itemsToAdd.length} item${
+        itemsToAdd.length > 1 ? "s" : ""
+      } to cart`
+    );
     setIsLoading(false);
     setSelectedItems([]);
   };
@@ -263,6 +270,7 @@ const Wishlist = () => {
                     <motion.button
                       onClick={() => {
                         removeFromWishlist(item.id);
+                        toast.success(`Removed ${item.name} from wishlist`);
                         setSelectedItems((prev) =>
                           prev.filter((itemId) => itemId !== item.id)
                         );
@@ -333,6 +341,7 @@ const Wishlist = () => {
                       <motion.button
                         onClick={() => {
                           addItem(item);
+                          toast.success(`Added ${item.name} to cart`);
                           removeFromWishlist(item.id);
                         }}
                         disabled={!item.inStock || isLoading}
@@ -372,6 +381,43 @@ const Wishlist = () => {
           </div>
         )}
       </div>
+       {/* Toast Notifications */}
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          toastStyle={{
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "12px",
+            color: "white",
+            fontFamily: "inherit",
+            fontSize: "14px",
+            fontWeight: "300",
+            letterSpacing: "0.5px",
+            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
+          }}
+          progressStyle={{
+            background:
+              "linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)",
+            height: "2px",
+          }}
+          closeButtonStyle={{
+            color: "rgba(255, 255, 255, 0.7)",
+            fontSize: "16px",
+          }}
+          style={{
+            zIndex: 9999,
+          }}
+        />
     </div>
   );
 };

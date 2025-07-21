@@ -13,6 +13,24 @@ const ProductVideo = () => {
   const subtitleRef = useRef(null);
   const particlesRef = useRef([]);
 
+  const handleMouseEnter = () => {
+    if (video2Ref.current) {
+      const video = video2Ref.current.querySelector("video");
+      if (video) {
+        video.muted = false;
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (video2Ref.current) {
+      const video = video2Ref.current.querySelector("video");
+      if (video) {
+        video.muted = true;
+      }
+    }
+  };
+
   useEffect(() => {
     const section = sectionRef.current;
     const video1 = video1Ref.current;
@@ -289,6 +307,8 @@ const ProductVideo = () => {
 
           <motion.div
             ref={video2Ref}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             className="relative group"
             variants={videoVariants}
             whileHover={{

@@ -8,8 +8,8 @@ import { useWishlistStore } from "../src/store/wishlistStore";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../src/store/authStore";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import {  toast } from "react-toastify";
+
 
 const Navbar = () => {
   const { accessToken, clearAccessToken } = useAuthStore();
@@ -21,6 +21,7 @@ const Navbar = () => {
   const navRef = useRef(null);
   const logoRef = useRef(null);
   const menuItemsRef = useRef([]);
+  const mobileMenuRef = useRef(null);
 
   const handleLogout = () => {
     clearAccessToken();
@@ -38,6 +39,23 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Add click outside functionality
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target) && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   useEffect(() => {
     // GSAP animation for navbar entrance
@@ -88,7 +106,7 @@ const Navbar = () => {
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8" ref={mobileMenuRef}>
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <motion.div
@@ -231,145 +249,108 @@ const Navbar = () => {
             />
           </motion.button>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            className="lg:hidden absolute top-full left-0 right-0 bg-black backdrop-blur-xl border-b border-gray-900/50"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
-            <div className="px-6 py-8 space-y-8">
-              {navItems.map(
-                (item, index) =>
-                  !(isLoggedIn && item === "Login") && (
-                    <motion.div
-                      key={item}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1, duration: 0.3 }}
-                    >
-                      <Link
-                        to={`/${
-                          item.toLowerCase() === "home"
-                            ? ""
-                            : item.toLowerCase()
-                        }`}
-                        className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
-                        onClick={() => setIsMenuOpen(false)}
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              className="lg:hidden absolute top-full left-0 right-0 bg-black backdrop-blur-xl border-b border-gray-900/50"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+              <div className="px-6 py-8 space-y-8">
+                {navItems.map(
+                  (item, index) =>
+                    !(isLoggedIn && item === "Login") && (
+                      <motion.div
+                        key={item}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1, duration: 0.3 }}
                       >
-                        {item}
-                      </Link>
-                    </motion.div>
-                  )
-              )}
+                        <Link
+                          to={`/${
+                            item.toLowerCase() === "home"
+                              ? ""
+                              : item.toLowerCase()
+                          }`}
+                          className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          {item}
+                        </Link>
+                      </motion.div>
+                    )
+                )}
 
-              {/* Mobile Logout */}
-              {isLoggedIn && (
+                {/* Mobile Logout */}
+                {isLoggedIn && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.3 }}
+                  >
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
+                    >
+                      Logout
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Mobile Wishlist Link */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, duration: 0.3 }}
-                >
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
-                  >
-                    Logout
-                  </button>
-                </motion.div>
-              )}
-
-              {/* Mobile Wishlist Link */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.3 }}
-              >
-                <Link
-                  to="/wishlist"
-                  className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <Heart className="inline-block mr-2" size={18} />
-                  Wishlist
-                </Link>
-              </motion.div>
-
-              {/* Mobile Cart Link */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.3 }}
-              >
-                <motion.div
-                  whileTap={{ scale: 0.95 }}
-                  whileHover={{
-                    scale: 1.05,
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  transition={{ delay: 0.4, duration: 0.3 }}
                 >
                   <Link
-                    to="/cart"
-                    className="block w-full bg-gradient-to-r from-white to-gray-100 text-black px-6 py-3 font-medium text-sm tracking-wider mt-8 hover:shadow-lg hover:rounded-[50px] transition-all duration-300 text-center"
+                    to="/wishlist"
+                    className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    <ShoppingCart className="inline-block mr-2" size={18} />
-                    Cart
-                    <span className="ml-2 text-xs bg-gray-800 text-white rounded-full px-2 py-1">
-                      {items.length}
-                    </span>
+                    <Heart className="inline-block mr-2" size={18} />
+                    Wishlist
                   </Link>
                 </motion.div>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {/* Toast Notifications */}
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-        toastStyle={{
-          backgroundColor: "rgba(0, 0, 0, 0.9)",
-          backdropFilter: "blur(10px)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          borderRadius: "12px",
-          color: "white",
-          fontFamily: "inherit",
-          fontSize: "14px",
-          fontWeight: "300",
-          letterSpacing: "0.5px",
-          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
-        }}
-        progressStyle={{
-          background:
-            "linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)",
-          height: "2px",
-        }}
-        closeButtonStyle={{
-          color: "rgba(255, 255, 255, 0.7)",
-          fontSize: "16px",
-        }}
-        style={{
-          zIndex: 9999,
-        }}
-      />
+
+                {/* Mobile Cart Link */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.3 }}
+                >
+                  <motion.div
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{
+                      scale: 1.05,
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <Link
+                      to="/cart"
+                      className="block w-full bg-gradient-to-r from-white to-gray-100 text-black px-6 py-3 font-medium text-sm tracking-wider mt-8 hover:shadow-lg hover:rounded-[50px] transition-all duration-300 text-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <ShoppingCart className="inline-block mr-2" size={18} />
+                      Cart
+                      <span className="ml-2 text-xs bg-gray-800 text-white rounded-full px-2 py-1">
+                        {items.length}
+                      </span>
+                    </Link>
+                  </motion.div>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.nav>
   );
 };

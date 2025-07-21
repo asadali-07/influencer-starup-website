@@ -4,7 +4,7 @@ import { gsap } from "gsap";
 import { useCartStore } from "../src/store/cartStore";
 import perfumeProducts from "../data/perfumeData";
 import { Link } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast} from "react-toastify";
 
 const ProductImages = () => {
   const { addItem } = useCartStore();
@@ -317,43 +317,6 @@ const ProductImages = () => {
                 <Link to={`/products/${currentProduct.id}`}>Learn More</Link>
               </motion.div>
             </motion.div>
-            {/* Toast Notifications */}
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="dark"
-              toastStyle={{
-                backgroundColor: "rgba(0, 0, 0, 0.9)",
-                backdropFilter: "blur(10px)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: "12px",
-                color: "white",
-                fontFamily: "inherit",
-                fontSize: "14px",
-                fontWeight: "300",
-                letterSpacing: "0.5px",
-                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
-              }}
-              progressStyle={{
-                background:
-                  "linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%)",
-                height: "2px",
-              }}
-              closeButtonStyle={{
-                color: "rgba(255, 255, 255, 0.7)",
-                fontSize: "16px",
-              }}
-              style={{
-                zIndex: 9999,
-              }}
-            />
           </div>
         </div>
       </div>

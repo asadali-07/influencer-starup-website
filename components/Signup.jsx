@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../src/store/authStore";
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { refreshAuth } = useAuthStore();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -94,36 +96,53 @@ const Signup = () => {
     e.preventDefault();
     if (!validateForm()) return;
     setIsLoading(true);
-    const data = await fetch("https://two407-backend.onrender.com/api/auth/signup", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        password: formData.password,
-      }),
-    });
-    setIsLoading(false);
-    const result = await data.json();
-    if (data.ok) {
-      console.log("Signup successful:", result);
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
+
+    try {
+      const data = await fetch("https://two407-backend.onrender.com/api/auth/signup", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          password: formData.password,
+        }),
       });
-      setErrors({});
-      navigate("/");
-    } else {
+
+      const result = await data.json();
+
+      if (data.ok) {
+        console.log("Signup successful:", result);
+        
+        // Refresh auth state after successful signup
+        setTimeout(() => {
+          refreshAuth();
+        }, 300);
+
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+        setErrors({});
+        navigate("/");
+      } else {
+        setErrors({
+          email: result.message || "Signup failed. Please try again.",
+        });
+        console.error("Signup failed:", result);
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
       setErrors({
-        email: result.message || "Signup failed. Please try again.",
+        error: "Network error. Please try again.",
       });
-      console.error("Signup failed:", result);
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -10,7 +10,7 @@ import { useAuthStore } from "../src/store/authStore";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const { accessToken, logout: authLogout, initAuth } = useAuthStore();
+  const { accessToken, isAuthenticated, logout: authLogout, initAuth, checkAuth } = useAuthStore();
   const navigate = useNavigate();
   const { items } = useCartStore();
   const { wishlist } = useWishlistStore();
@@ -20,27 +20,60 @@ const Navbar = () => {
   const logoRef = useRef(null);
   const menuItemsRef = useRef([]);
 
-   const handleLogout = async () => {
-    const data = await fetch("https://two407-backend.onrender.com/api/auth/logout", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const result = await data.json();
-    if (data.ok) {
-      console.log("Logout successful:", result);
-      authLogout();
+  const handleLogout = async () => {
+    try {
+      const data = await fetch("https://two407-backend.onrender.com/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await data.json();
+      if (data.ok) {
+        console.log("Logout successful:", result);
+        authLogout();
+        navigate("/");
+      } else {
+        console.error("Logout failed:", result);
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      authLogout(); // Still logout on client side
       navigate("/");
-    } else {
-      console.error("Logout failed:", result);
     }
   };
 
- useEffect(() => {
+  // Initialize auth and set up periodic checking
+  useEffect(() => {
     initAuth();
-  }, [initAuth]);
+    
+    // Check auth status periodically
+    const interval = setInterval(() => {
+      checkAuth();
+    }, 5000);
+
+    // Check auth when window gains focus
+    const handleFocus = () => {
+      checkAuth();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [initAuth, checkAuth]);
+
+  // Debug auth state changes
+  useEffect(() => {
+    console.log("Navbar - Auth state changed:", { 
+      accessToken: !!accessToken, 
+      isAuthenticated,
+      actualToken: accessToken 
+    });
+  }, [accessToken, isAuthenticated]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -87,6 +120,9 @@ const Navbar = () => {
 
   const navItems = ["Home", "About", "Products", "Login"];
 
+  // Use isAuthenticated instead of just accessToken for more reliable auth checking
+  const isLoggedIn = isAuthenticated && accessToken;
+
   return (
     <motion.nav
       ref={navRef}
@@ -119,7 +155,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-16">
             {navItems.map(
               (item, index) =>
-                !(accessToken && item === "Login") && (
+                !(isLoggedIn && item === "Login") && (
                   <motion.div
                     key={item}
                     ref={(el) => (menuItemsRef.current[index] = el)}
@@ -130,7 +166,7 @@ const Navbar = () => {
                       to={`/${
                         item.toLowerCase() === "home" ? "" : item.toLowerCase()
                       }`}
-                      className="font-light text-sm tracking-widest uppercase transition-colors duration-300 relative group"
+                      className="text-gray-300 hover:text-white font-light text-sm tracking-widest uppercase transition-colors duration-300 relative group"
                     >
                       {item}
                       <motion.div
@@ -145,7 +181,7 @@ const Navbar = () => {
             )}
 
             {/* Logout */}
-            {accessToken && (
+            {isLoggedIn && (
               <motion.div
                 whileHover={{ y: -2 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
@@ -253,24 +289,45 @@ const Navbar = () => {
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="px-6 py-8 space-y-8">
-              {navItems.map((item, index) => (
+              {navItems.map((item, index) => 
+                !(isLoggedIn && item === "Login") && (
+                  <motion.div
+                    key={item}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1, duration: 0.3 }}
+                  >
+                    <Link
+                      to={`/${
+                        item.toLowerCase() === "home" ? "" : item.toLowerCase()
+                      }`}
+                      className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item}
+                    </Link>
+                  </motion.div>
+                )
+              )}
+
+              {/* Mobile Logout */}
+              {isLoggedIn && (
                 <motion.div
-                  key={item}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.3 }}
+                  transition={{ delay: 0.3, duration: 0.3 }}
                 >
-                  <Link
-                    to={`/${
-                      item.toLowerCase() === "home" ? "" : item.toLowerCase()
-                    }`}
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
                     className="block text-gray-300 hover:text-white font-light text-lg tracking-widest uppercase transition-colors duration-300"
-                    onClick={() => setIsMenuOpen(false)}
                   >
-                    {item}
-                  </Link>
+                    Logout
+                  </button>
                 </motion.div>
-              ))}
+              )}
 
               {/* Mobile Wishlist Link */}
               <motion.div
@@ -287,7 +344,8 @@ const Navbar = () => {
                   Wishlist
                 </Link>
               </motion.div>
-              {/* Mobile Cart Link using hover class of tailwind */}
+
+              {/* Mobile Cart Link */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

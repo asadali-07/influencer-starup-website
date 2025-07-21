@@ -101,7 +101,7 @@ const Login = () => {
         // This will read the newly set cookie and update the store
         setTimeout(() => {
           refreshAuth();
-        }, 100); // Small delay to ensure cookie is set
+        }, 300); // Small delay to ensure cookie is set
 
         setFormData({ email: "", password: "" });
         setErrors({});

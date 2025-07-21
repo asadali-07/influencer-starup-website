@@ -4,9 +4,10 @@ import { gsap } from "gsap";
 import { useCartStore } from "../src/store/cartStore";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
+import { useAuthStore } from "../src/store/authStore";
 
 const Cart = () => {
+  const { accessToken } = useAuthStore();
   const { items, removeItem, increaseQuantity, decreaseQuantity } =
     useCartStore();
   const navigate = useNavigate();
@@ -49,8 +50,7 @@ const Cart = () => {
   const total = subtotal - discountAmount + shipping;
 
   const handleCheckout = async () => {
-    const accessToken = Cookies.get("accessToken");
-    if (!accessToken) {
+    if (!accessToken.value) {
       navigate("/login");
       return;
     }

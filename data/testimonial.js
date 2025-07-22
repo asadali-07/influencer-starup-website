@@ -7,7 +7,7 @@
         "LUXE fragrances have become my signature. The sophistication and elegance in every bottle is unmatched. It's not just a perfume, it's an experience.",
       rating: 5,
       image:
-        "/sarah.avif",
+        "/sarah.png",
     },
     {
       id: 2,

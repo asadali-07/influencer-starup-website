@@ -12,6 +12,29 @@ const ProductVideo = () => {
   const titleRef = useRef(null);
   const subtitleRef = useRef(null);
   const particlesRef = useRef([]);
+  
+    // Add video preloading effect
+    useEffect(() => {
+      // Preload videos with high priority
+      const preloadVideos = () => {
+        const video1 = document.createElement('video');
+        const video2 = document.createElement('video');
+        
+        // Set high priority loading
+        video1.preload = 'auto';
+        video2.preload = 'auto';
+        
+        // Add sources
+        video1.src = '/video1.mp4';
+        video2.src = '/video2.mp4';
+        
+        // Force load
+        video1.load();
+        video2.load();
+      };
+  
+      preloadVideos();
+    }, []);
 
   const handleMouseEnter = () => {
     if (video2Ref.current) {
@@ -259,7 +282,15 @@ const ProductVideo = () => {
               {/* Enhanced gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/8 via-transparent to-white/5 z-10 pointer-events-none"></div>
 
-              <video
+              <video  
+               ref={(el) => {
+                  if (el) {
+                    // Set high priority attributes
+                    el.setAttribute('importance', 'high');
+                    el.setAttribute('fetchpriority', 'high');
+                  }
+                }}
+                preload="auto"          
                 autoPlay
                 loop
                 muted
@@ -324,6 +355,14 @@ const ProductVideo = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-white/8 via-transparent to-white/5 z-10 pointer-events-none"></div>
 
               <video
+               ref={(el) => {
+                  if (el) {
+                    // Set high priority attributes
+                    el.setAttribute('importance', 'high');
+                    el.setAttribute('fetchpriority', 'high');
+                  }
+                }}
+                preload="auto"
                 autoPlay
                 loop
                 muted

@@ -188,6 +188,7 @@ const HeroSection = () => {
               {/* Product placeholder - replace with your perfume image */}
               <div className="relative w-92 h-96 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl flex items-center justify-center border border-gray-700/50 ">
                 <img
+                  fetchPriority="high"
                   src="/All.png"
                   alt="Perfume"
                   className="w-full h-full object-cover rounded-2xl"
